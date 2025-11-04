@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Posts | LabBlog{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Posts recentes</h1>
+    <a class="btn btn-primary" href="{% url 'post-create' %}">Novo post</a>
+</div>
+{% if posts %}
+    <div class="list-group">
+        {% for post in posts %}
+            <a class="list-group-item list-group-item-action" href="{% url 'post-detail' post.pk %}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h2 class="h5 mb-1">{{ post.title }}</h2>
+                    <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                </div>
+                <p class="mb-1 text-muted">{{ post.content|striptags|truncatechars:160 }}</p>
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info" role="alert">
+        Ainda não há posts cadastrados. Que tal <a href="{% url 'post-create' %}">criar o primeiro?</a>
+    </div>
+{% endif %}
+{% endblock %}

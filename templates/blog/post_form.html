@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{% if post %}Editar post{% else %}Novo post{% endif %} | LabBlog{% endblock %}
+{% block content %}
+<h1 class="h3 mb-4">{% if post %}Editar post{% else %}Novo post{% endif %}</h1>
+<form method="post" action="{{ form_action }}">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label" for="id_title">Título</label>
+        <input class="form-control" id="id_title" name="title" type="text" value="{{ post.title|default_if_none:"" }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="id_content">Conteúdo</label>
+        <textarea class="form-control" id="id_content" name="content" rows="8" required>{{ post.content|default_if_none:"" }}</textarea>
+        <div class="form-text">Aceita HTML básico. Utilize o filtro <code>safe</code> para renderização.</div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="id_created_at">Data de publicação</label>
+        <input class="form-control" id="id_created_at" name="created_at" type="datetime-local" value="{{ default_created_at }}">
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+        <a class="btn btn-outline-secondary" href="{% url 'post-list' %}">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

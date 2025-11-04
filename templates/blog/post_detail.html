@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} | LabBlog{% endblock %}
+{% block content %}
+<article class="mb-4">
+    <header class="mb-3">
+        <h1 class="display-6">{{ post.title }}</h1>
+        <p class="text-muted">Publicado em {{ post.created_at|date:"d 'de' F 'de' Y \à\s H:i" }}</p>
+    </header>
+    <section class="fs-5">
+        {{ post.content|safe }}
+    </section>
+</article>
+<div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'post-update' post.pk %}">Editar</a>
+    <a class="btn btn-outline-danger" href="{% url 'post-delete' post.pk %}">Remover</a>
+    <a class="btn btn-link" href="{% url 'post-list' %}">Voltar para a listagem</a>
+</div>
+{% endblock %}
