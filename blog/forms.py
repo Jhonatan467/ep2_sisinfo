@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Post
+from .models import Comment, Post
 
 
 class PostForm(forms.ModelForm):
@@ -35,3 +35,19 @@ class PostForm(forms.ModelForm):
         if timezone.is_naive(created_at):
             return timezone.make_aware(created_at, timezone.get_current_timezone())
         return created_at
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["text"]
+        labels = {"text": "Comentário"}
+        widgets = {
+            "text": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 4,
+                    "placeholder": "Escreva seu comentário"
+                }
+            )
+        }

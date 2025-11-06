@@ -1,12 +1,18 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from blog.models import Post
+from blog.models import Comment, Post
 
 
 class PostViewsTests(TestCase):
 	def setUp(self):
+		self.user = get_user_model().objects.create_user(
+			username="autor",
+			email="autor@example.com",
+			password="senha-secreta",
+		)
 		self.post = Post.objects.create(
 			title="Post de teste",
 			content="<p>Conteúdo inicial.</p>",
@@ -56,3 +62,27 @@ class PostViewsTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertFalse(Post.objects.filter(pk=self.post.pk).exists())
 		self.assertTemplateUsed(response, "blog/post_list.html")
+
+	def test_detail_view_lists_comments(self):
+		Comment.objects.create(post=self.post, author=self.user, text="Primeiro comentario")
+		response = self.client.get(reverse("post-detail", args=[self.post.pk]))
+		self.assertContains(response, "Primeiro comentario")
+
+	def test_comment_create_requires_authentication(self):
+		response = self.client.get(reverse("comment-create", args=[self.post.pk]))
+		self.assertEqual(response.status_code, 302)
+		self.assertIn("admin/login", response.url)
+
+	def test_comment_create_view_renders_form(self):
+		self.client.login(username="autor", password="senha-secreta")
+		response = self.client.get(reverse("comment-create", args=[self.post.pk]))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "blog/comment_form.html")
+
+	def test_comment_create_submits_from_detail(self):
+		self.client.login(username="autor", password="senha-secreta")
+		payload = {"text": "Comentario via teste"}
+		response = self.client.post(reverse("comment-create", args=[self.post.pk]), payload, follow=True)
+		self.assertRedirects(response, reverse("post-detail", args=[self.post.pk]))
+		self.assertTrue(Comment.objects.filter(text="Comentario via teste", post=self.post).exists())
+		self.assertContains(response, "Comentario via teste")
