@@ -1,3 +1,8 @@
+# Listagem do arquivo `blog/views.py`
+
+Inclua esta listagem na seção de resultados do PDF. Caso prefira, exporte diretamente do editor e cole como anexo. Segue a versão atual completa:
+
+```
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -94,4 +99,4 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 	def get_success_url(self):
 		return self.get_post().get_absolute_url()
-
+```

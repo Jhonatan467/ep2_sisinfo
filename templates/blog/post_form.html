@@ -21,6 +21,25 @@
         {{ form.created_at }}
         {{ form.created_at.errors }}
     </div>
+    <div class="mb-3">
+        <label class="form-label" for="id_categories">{{ form.categories.label }}</label>
+        {% if form.categories.field.queryset %}
+            <div class="d-flex flex-column gap-2">
+                {% for checkbox in form.categories %}
+                    <div class="form-check">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-2">Nenhuma categoria cadastrada. Utilize o admin para criar novas categorias.</p>
+        {% endif %}
+        {% if form.categories.help_text %}
+            <div class="form-text">{{ form.categories.help_text }}</div>
+        {% endif %}
+        {{ form.categories.errors }}
+    </div>
     <div class="d-flex gap-2">
         <button class="btn btn-primary" type="submit">Salvar</button>
         <a class="btn btn-outline-secondary" href="{% url 'post-list' %}">Cancelar</a>

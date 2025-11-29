@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} | Categorias | LabBlog{% endblock %}
+{% block content %}
+<section class="mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="h3 mb-1">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="text-muted mb-0">{{ category.description }}</p>
+            {% else %}
+                <p class="text-muted mb-0">Categoria sem descrição.</p>
+            {% endif %}
+        </div>
+        <a class="btn btn-outline-secondary" href="{% url 'category-list' %}">Todas as categorias</a>
+    </div>
+</section>
+{% if posts %}
+    <div class="list-group">
+        {% for post in posts %}
+            <a class="list-group-item list-group-item-action" href="{% url 'post-detail' post.pk %}">
+                <div class="d-flex w-100 justify-content-between">
+                    <h2 class="h5 mb-1">{{ post.title }}</h2>
+                    <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
+                </div>
+                <p class="mb-2 text-muted">{{ post.content|striptags|truncatechars:160 }}</p>
+                {% with post.categories.all as post_categories %}
+                    {% if post_categories %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for post_category in post_categories %}
+                                <a class="badge bg-secondary text-decoration-none" href="{{ post_category.get_absolute_url }}">{{ post_category.name }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info" role="alert">
+        Nenhum post cadastrado nesta categoria ainda.
+    </div>
+{% endif %}
+{% endblock %}

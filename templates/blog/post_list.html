@@ -2,9 +2,18 @@
 {% block title %}Posts | LabBlog{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Posts recentes</h1>
+    <h1 class="h3 mb-0">
+        {% if category %}
+            Posts em {{ category.name }}
+        {% else %}
+            Posts recentes
+        {% endif %}
+    </h1>
     <a class="btn btn-primary" href="{% url 'post-create' %}">Novo post</a>
 </div>
+{% if category and category.description %}
+    <p class="text-muted">{{ category.description }}</p>
+{% endif %}
 {% if posts %}
     <div class="list-group">
         {% for post in posts %}
@@ -14,12 +23,27 @@
                     <small class="text-muted">{{ post.created_at|date:"d/m/Y H:i" }}</small>
                 </div>
                 <p class="mb-1 text-muted">{{ post.content|striptags|truncatechars:160 }}</p>
+                {% with post.categories.all as post_categories %}
+                    {% if post_categories %}
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for category in post_categories %}
+                                <a class="badge bg-secondary text-decoration-none" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
             </a>
         {% endfor %}
     </div>
 {% else %}
-    <div class="alert alert-info" role="alert">
-        Ainda não há posts cadastrados. Que tal <a href="{% url 'post-create' %}">criar o primeiro?</a>
-    </div>
+    {% if category %}
+        <div class="alert alert-info" role="alert">
+            Nenhum post cadastrado na categoria {{ category.name }} ainda.
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            Ainda não há posts cadastrados. Que tal <a href="{% url 'post-create' %}">criar o primeiro?</a>
+        </div>
+    {% endif %}
 {% endif %}
 {% endblock %}

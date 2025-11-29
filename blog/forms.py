@@ -1,7 +1,7 @@
 from django import forms
 from django.utils import timezone
 
-from .models import Comment, Post
+from .models import Category, Comment, Post
 
 
 class PostForm(forms.ModelForm):
@@ -13,10 +13,17 @@ class PostForm(forms.ModelForm):
         ),
         input_formats=["%Y-%m-%dT%H:%M"],
     )
+    categories = forms.ModelMultipleChoiceField(
+        label="Categorias",
+        queryset=Category.objects.all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "form-check-input"}),
+        help_text="Selecione as categorias que se aplicam ao post.",
+    )
 
     class Meta:
         model = Post
-        fields = ["title", "content", "created_at"]
+        fields = ["title", "content", "created_at", "categories"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "content": forms.Textarea(attrs={"class": "form-control", "rows": 8}),

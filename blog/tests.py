@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from blog.models import Comment, Post
+from blog.models import Category, Comment, Post
 
 
 class PostViewsTests(TestCase):
@@ -13,23 +13,28 @@ class PostViewsTests(TestCase):
 			email="autor@example.com",
 			password="senha-secreta",
 		)
+		self.category = Category.objects.create(name="Django")
+		self.other_category = Category.objects.create(name="Python")
 		self.post = Post.objects.create(
 			title="Post de teste",
 			content="<p>Conteúdo inicial.</p>",
 			created_at=timezone.now() - timezone.timedelta(days=1),
 		)
+		self.post.categories.add(self.category)
 
 	def test_list_view_displays_posts(self):
 		response = self.client.get(reverse("post-list"))
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, "blog/post_list.html")
 		self.assertContains(response, self.post.title)
+		self.assertContains(response, self.category.name)
 
 	def test_detail_view_displays_post(self):
 		response = self.client.get(reverse("post-detail", args=[self.post.pk]))
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, "blog/post_detail.html")
 		self.assertContains(response, "Conteúdo inicial.", html=True)
+		self.assertContains(response, self.category.name)
 
 	def test_detail_view_returns_404_for_missing_post(self):
 		response = self.client.get(reverse("post-detail", args=[self.post.pk + 1]))
@@ -86,3 +91,39 @@ class PostViewsTests(TestCase):
 		self.assertRedirects(response, reverse("post-detail", args=[self.post.pk]))
 		self.assertTrue(Comment.objects.filter(text="Comentario via teste", post=self.post).exists())
 		self.assertContains(response, "Comentario via teste")
+
+
+class CategoryViewsTests(TestCase):
+	def setUp(self):
+		self.category = Category.objects.create(name="Django")
+		self.empty_category = Category.objects.create(name="Sem Postagens")
+		self.post = Post.objects.create(
+			title="Post categorizado",
+			content="<p>Conteúdo com categoria.</p>",
+			created_at=timezone.now(),
+		)
+		self.post.categories.add(self.category)
+
+	def test_category_list_view_displays_categories(self):
+		response = self.client.get(reverse("category-list"))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "blog/category_list.html")
+		self.assertContains(response, self.category.name)
+		self.assertContains(response, self.empty_category.name)
+
+	def test_category_detail_view_shows_posts(self):
+		response = self.client.get(reverse("category-detail", args=[self.category.slug]))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "blog/post_list.html")
+		self.assertContains(response, self.post.title)
+		self.assertContains(response, self.category.name)
+
+	def test_category_detail_view_handles_empty_category(self):
+		response = self.client.get(reverse("category-detail", args=[self.empty_category.slug]))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "blog/post_list.html")
+		self.assertContains(response, "Nenhum post cadastrado na categoria")
+
+	def test_category_detail_view_returns_404_for_unknown_category(self):
+		response = self.client.get(reverse("category-detail", args=["inexistente"]))
+		self.assertEqual(response.status_code, 404)
