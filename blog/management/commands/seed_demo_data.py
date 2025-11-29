@@ -48,7 +48,7 @@ class Command(BaseCommand):
             {
                 "title": "Checklist antes de publicar seu projeto",
                 "content": """<p>Revise documentação, testes e monitoramento antes do deploy.</p>
-<p>Este post intencionalmente não possui comentários para atender ao requisito do laboratório.</p>""",
+<p>Não esqueça de conferir as variáveis de ambiente e fazer backup do banco.</p>""",
                 "created_at": timezone.now() - timezone.timedelta(days=1),
                 "category_names": ["Carreira"],
                 "has_comments": False,
